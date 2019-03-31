@@ -7,6 +7,7 @@ class Manager:
         self.config = config
 
     def __check_service(self):
+        return False
 
     def __get_image_number(self):
         return len(self.__etcd_get_prefix("image_")) / 2
@@ -38,6 +39,7 @@ class Manager:
         return False
 
     def get_all_container(self):
+        return False
 
     #deprecated
     def create_new_service(self, name, position):

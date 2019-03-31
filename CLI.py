@@ -21,13 +21,13 @@ while True:
         print_commands()
     elif(user_input =="exit"):
         break
-    elif(user_input == "create_service_from_yml"):
+    elif(user_input == "1"):
         image_name = input("What is the image name?\nEnter: ")
         file_name = input("What is the file name?\nEnter: ")
-        manager.create_new_service(image_name, file_name)
-    elif(user_input =="list_all_service"):
+        manager.create_service_from_yml(image_name, file_name)
+    elif(user_input =="2"):
         manager.list_all_service()
-    elif (user_input == "list_all_service"):
+    elif (user_input == "3"):
         image_name = input("What is the image name?\nEnter: ")
         amount = input("How many worker do you need?\nEnter: ")
         manager.run_service(image_name,amount)

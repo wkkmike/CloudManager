@@ -19,7 +19,7 @@ class Manager:
 
     def __etcd_get(self, key):
         return subprocess.run(args=["etcdctl", "--endpoints=" + self.etcd, "get", key],
-                        capture_output=True).stdout.decode("utf-8").strip()
+                              capture_output=True).stdout.decode("utf-8").strip()
 
     def __etcd_del(self, key):
         subprocess.run(args=["etcdctl", "del", key])

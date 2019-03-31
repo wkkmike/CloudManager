@@ -84,6 +84,7 @@ class Manager:
                 answer += "{:30s}".format(item[6:])
             else:
                answer += "{:30s}".format(item) + "\n"
+            i += 1
         return answer
 
     def run_service(self, name, amount):
@@ -92,9 +93,11 @@ class Manager:
         id_list = subprocess.run(["docker", "ps", "-qf", "\"name="+name+"\""], capture_output=True)\
             .stdout.strip().decode("utf-8").split("\n")
         self.__etcd_del_prefix("container_" + name)
+        print(id_list)
         i=1
         for id in id_list:
             self.__etcd_put("container_" + name + "_" + str(i), id)
             i += 1
         output = subprocess.run(["docker", "ps", "-f", "\"name=" + name + "\""], capture_output=True)
+        print(output)
         return output.stdout.decode("utf-8")

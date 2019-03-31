@@ -90,7 +90,8 @@ class Manager:
     def run_service(self, name, amount):
         subprocess.run(["docker-compose","up", "--scale", name+"="+amount, "-d"], capture_output=True)
         self.__etcd_put("image_" + name, amount)
-        id_list = subprocess.run(["docker", "ps", "-qf", "\"name="+name+"\""], capture_output=True)\
+        name_filter = "name=" + name
+        id_list = subprocess.run(["docker", "ps", "-qf", name_filter], capture_output=True)\
             .stdout.strip().decode("utf-8").split("\n")
         self.__etcd_del_prefix("container_" + name)
         print(id_list)
@@ -98,6 +99,6 @@ class Manager:
         for id in id_list:
             self.__etcd_put("container_" + name + "_" + str(i), id)
             i += 1
-        output = subprocess.run(["docker", "ps", "-f", "\"name=" + name + "\""], capture_output=True)
+        output = subprocess.run(["docker", "ps", "-f", name_filter], capture_output=True)
         print(output)
         return output.stdout.decode("utf-8")

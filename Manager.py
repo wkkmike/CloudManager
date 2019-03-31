@@ -39,7 +39,7 @@ class Manager:
         return True
 
     def __etcd_put(self, key, value):
-        return_value = subprocess.run(args=["etcdctl", "--endpoints=" + self.etcd, "put", "image", ""], capture_output=True)
+        return_value = subprocess.run(args=["etcdctl", "--endpoints=" + self.etcd, "put", key, value], capture_output=True)
         if return_value.stdout.strip().decode("utf-8") == "OK":
             return True
         return False
@@ -71,7 +71,6 @@ class Manager:
             command += "    labels: \n      - \"traefik.frontend.rule=Host:" + name + ".docker.localhost\"\n"
         if not self.__etcd_put("image_" + name, "0"):
             return False
-
         with open(self.config, "a") as file:
             file.write(command)
         return True

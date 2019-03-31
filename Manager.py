@@ -68,7 +68,7 @@ class Manager:
             while line:
                 command += "  " + line
                 line = file.readline()
-            command += "    labels: - \"traefik.frontend.rule=Host:" + name + ".docker.localhost\"\n"
+            command += "    labels: \n      - \"traefik.frontend.rule=Host:" + name + ".docker.localhost\"\n"
         if not self.__etcd_put("image_" + name, "0"):
             return False
 

@@ -53,7 +53,7 @@ class Manager:
             return False
         command = "  " + name + ":\n"
         command += "    image:" + position + "\n"
-        command += "    labels:\"- traefik.frontend.rule=Host:whoami.docker.localhost\"\n"
+        command += "    labels:- \"traefik.frontend.rule=Host:whoami.docker.localhost\"\n"
         with open(self.config, "a") as file:
             file.write(command)
         subprocess.run(args=["etcdctl", "--endpoints=" + self.etcd, "put", "image", ""])

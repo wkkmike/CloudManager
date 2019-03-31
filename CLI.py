@@ -1,6 +1,9 @@
 import Manager
+
 commands = {0:"help",
-            1:"create_service_from_yml"}
+            1:"create_service_from_yml",
+            2:"list_all_service",
+            3:"run_service"}
 
 def print_commands():
     print("All Commands:")
@@ -22,6 +25,11 @@ while True:
         image_name = input("What is the image name?\nEnter: ")
         file_name = input("What is the file name?\nEnter: ")
         manager.create_new_service(image_name, file_name)
-
+    elif(user_input =="list_all_service"):
+        manager.list_all_service()
+    elif (user_input == "list_all_service"):
+        image_name = input("What is the image name?\nEnter: ")
+        amount = input("How many worker do you need?\nEnter: ")
+        manager.run_service(image_name,amount)
     else:
         print("type help to see all commands")

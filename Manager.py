@@ -109,13 +109,11 @@ class Manager:
         id_list = subprocess.run(["docker", "ps", "-qf", name_filter], capture_output=True)\
             .stdout.strip().decode("utf-8").split("\n")
         self.__etcd_del_prefix("container_" + name)
-        print(id_list)
         i=1
         for id in id_list:
             self.__etcd_put("container_" + name + "_" + str(i), id)
             i += 1
         output = subprocess.run(["docker", "ps", "-f", name_filter], capture_output=True)
-        print(output)
         return output.stdout.decode("utf-8")
 
     def check_health_of_service(self, name):
@@ -128,11 +126,11 @@ class Manager:
         amount = 0
         for id in containerid:
             output = subprocess.run(["docker", "stats", "--no-stream", id], capture_output=True)
-            info = output.stdout.decode("utf-8").split("\n")[1].split(" ")
+            info = output.stdout.decode("utf-8").split("\n")[1].split()
             cpu += float(info[2][:-1])
             mem += float(info[6][:-1])
             amount += 1
         answer = "{:30s}{:30s}{:30s}{:30s}".format("Service Name", "Number of instances"
                                                    , "CPU Useage", "MEM Useage") + "\n"
-        answer += "{:30s}{:30s}{:30s}{:30s}".format(name, amount, str(cpu) + "%", str(mem) + "%") + "\n"
+        answer += "{:30s}{:30s}{:30s}{:30s}".format(name, str(amount), str(cpu) + "%", str(mem) + "%") + "\n"
         return answer

@@ -1,4 +1,5 @@
 import subprocess
+import json
 
 class Manager:
     def __init__(self, etcd, config):
@@ -63,16 +64,20 @@ class Manager:
         if self.__image_exist(name):
             return False
         command = ""
-        with open(filename, "r") as file:
-            line = file.readline()
-            while line:
-                command += "  " + line
+        try:
+            with open(filename, "r") as file:
                 line = file.readline()
-            command += "    labels: \n      - \"traefik.frontend.rule=Host:" + name + ".docker.localhost\"\n"
-        if not self.__etcd_put("image_" + name, "0"):
+                while line:
+                    command += "  " + line
+                    line = file.readline()
+                command += "    labels: \n      - \"traefik.frontend.rule=Host:" + name + ".docker.localhost\"\n"
+            if not self.__etcd_put("image_" + name, "0"):
+                return False
+            with open(self.config, "a") as file:
+                file.write(command)
+        except:
+            print("Don't have the config file")
             return False
-        with open(self.config, "a") as file:
-            file.write(command)
         return True
 
     def list_all_service(self):
@@ -86,6 +91,16 @@ class Manager:
                answer += "{:30s}".format(item) + "\n"
             i += 1
         return answer
+
+    def get_containerid_for_service(self, name):
+        list = self.__etcd_get_prefix("container_" + name + "_")
+        containerid = []
+        i=0
+        for item in list:
+            if i%2 == 1:
+                containerid.append(item)
+            i+=1
+        return containerid
 
     def run_service(self, name, amount):
         subprocess.run(["docker-compose","up", "--scale", name+"="+amount, "-d"], capture_output=True)
@@ -102,3 +117,22 @@ class Manager:
         output = subprocess.run(["docker", "ps", "-f", name_filter], capture_output=True)
         print(output)
         return output.stdout.decode("utf-8")
+
+    def check_health_of_service(self, name):
+        if not self.__image_exist(name):
+            print("No such service")
+            return False
+        containerid = self.get_containerid_for_service(name)
+        cpu = 0.0
+        mem = 0.0
+        amount = 0
+        for id in containerid:
+            output = subprocess.run(["docker", "stats", "--no-stream", id], capture_output=True)
+            info = output.stdout.decode("utf-8").split("\n")[1].split(" ")
+            cpu += float(info[2][:-1])
+            mem += float(info[6][:-1])
+            amount += 1
+        answer = "{:30s}{:30s}{:30s}{:30s}".format("Service Name", "Number of instances"
+                                                   , "CPU Useage", "MEM Useage") + "\n"
+        answer += "{:30s}{:30s}{:30s}{:30s}".format(name, amount, str(cpu) + "%", str(mem) + "%") + "\n"
+        return answer

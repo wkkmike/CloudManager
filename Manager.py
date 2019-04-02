@@ -124,13 +124,23 @@ class Manager:
         cpu = 0.0
         mem = 0.0
         amount = 0
+        output = subprocess.run(["docker", "stats", "--no-stream"], capture_output=True)
+        output = output.stdout.decode("utf-8").split("\n")[1:]
+        for line in output:
+            info = line.split()
+            if info[0] in containerid:
+                cpu += float(info[2][:-1])
+                mem += float(info[6][:-1])
+                amount += 1
+        """
         for id in containerid:
             output = subprocess.run(["docker", "stats", "--no-stream", id], capture_output=True)
             info = output.stdout.decode("utf-8").split("\n")[1].split()
             cpu += float(info[2][:-1])
             mem += float(info[6][:-1])
             amount += 1
+        """
         answer = "{:30s}{:30s}{:30s}{:30s}".format("Service Name", "Number of instances"
                                                    , "CPU Useage", "MEM Useage") + "\n"
-        answer += "{:30s}{:30s}{:30s}{:30s}".format(name, str(amount), str(cpu) + "%", str(mem) + "%") + "\n"
+        answer += "{:30s}{:30s}{:30s}{:30s}".format(name, str(amount), str(cpu) + "%", str(mem) + "%")
         return answer

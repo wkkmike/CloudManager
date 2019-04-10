@@ -15,6 +15,8 @@ class Manager:
     def __auto_loader(self):
         image_list = self.__get_images_name()
         for image in image_list:
+            if len(image) == 0:
+                return
             amount, cpu, mem = self.__check_health_of_service(image)
             if cpu > self.cpu_max or mem > self.mem_max:
                 if amount < self.__get_upper(image):
@@ -30,6 +32,7 @@ class Manager:
 
     def __get_lower(self, name):
         return self.__etcd_get("lower_" + name)
+
     def __get_image_number(self):
         return len(self.__etcd_get_prefix("image_")) / 2
 

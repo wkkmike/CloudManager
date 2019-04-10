@@ -94,7 +94,7 @@ class Manager:
         return True;
     """
 
-    def create_service_from_yml(self, name, filename, upper, lower):
+    def create_service_from_yml(self, name, filename, upper=10, lower=1):
         if self.__image_exist(name):
             return False
         command = ""

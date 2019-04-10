@@ -25,7 +25,22 @@ while True:
     elif(user_input == "1"):
         image_name = input("What is the image name?\nEnter: ")
         file_name = input("What is the file name?\nEnter: ")
-        print(manager.create_service_from_yml(image_name, file_name))
+        upper = input("What is the upper limit for this image?:(default is 10)"
+                      "\n Enter")
+        lower = input("What is the lower limit for this image?:(default is 1)"
+                      "\n Enter")
+        try:
+            u = int(upper)
+            l = int(lower)
+        except:
+            u = 10
+            l = 1
+            print("Invalid input, use default setting")
+        if u < l or l < 0:
+            u = 10
+            l = 1
+            print("Invalid input, use default setting")
+        print(manager.create_service_from_yml(image_name, file_name, u, l))
     elif(user_input =="2"):
         print(manager.list_all_service())
     elif (user_input == "3"):

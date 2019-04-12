@@ -6,11 +6,11 @@ class Manager:
         self.etcd = etcd
         self.container_list = []
         self.config = config
-        self.timer = Timer(60, self.__auto_loader()).start()
         self.cpu_max = 80.0
         self.cpu_min = 20.0
         self.mem_max = 80.0
         self.mem_min = 20.0
+        Timer(60, self.__auto_loader()).start()
         subprocess.run(["docker-compose", "up", "--scale", "reverse-proxy=1", "-d"], capture_output=True)
 
     def __auto_loader(self):

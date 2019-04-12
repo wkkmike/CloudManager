@@ -10,29 +10,38 @@ class Manager:
         self.cpu_min = 20.0
         self.mem_max = 80.0
         self.mem_min = 20.0
-        Timer(60, self.__auto_loader()).start()
+        Timer(60, self.__auto_loader).start()
         subprocess.run(["docker-compose", "up", "--scale", "reverse-proxy=1", "-d"], capture_output=True)
 
     def __auto_loader(self):
         image_list = self.__get_images_name()
+        print(image_list)
         for image in image_list:
             if len(image) == 0:
                 return
             amount, cpu, mem = self.__check_health_of_service(image)
-            if cpu > self.cpu_max or mem > self.mem_max:
-                if amount < self.__get_upper(image):
-                    self.run_service(image, amount + 1)
-            if cpu < self.cpu_min and mem < self.mem_min and amount > self.__get_lower(image):
-                self.run_service(image, amount - 1)
+            if float(cpu) > self.cpu_max or float(mem) > self.mem_max:
+                if float(amount) < float(self.__get_upper(image)):
+                    self.run_service(image, str(amount + 1))
+            if float(cpu) < self.cpu_min and float(mem) < self.mem_min and float(amount) > float(self.__get_lower(image)):
+                self.run_service(image, str(amount - 1))
 
     def __check_service(self):
         return False
 
     def __get_upper(self, name):
-        return self.__etcd_get("upper_" + name)
+        out = self.__etcd_get("upper_" + name).split('\n')
+        if len(out) <=1:
+            return 10
+        return out[1]
+        #return self.__etcd_get("upper_" + name).split('\n')[1]
 
     def __get_lower(self, name):
-        return self.__etcd_get("lower_" + name)
+        out = self.__etcd_get("lower_" + name).split('\n')
+        if len(out) <= 1:
+            return 1
+        return out[1]
+        #return self.__etcd_get("lower_" + name).split('\n')[1]
 
     def __get_image_number(self):
         return len(self.__etcd_get_prefix("image_")) / 2
@@ -46,6 +55,17 @@ class Manager:
                 image_list.append(item[6:])
             i += 1
         return image_list
+
+    def __get_container_name(self):
+        list = self.__etcd_get_prefix("container_")
+        i=0
+        image_list = []
+        for item in list:
+            if i%2 == 0:
+                image_list.append(item[10:])
+            i += 1
+        return image_list
+
     def __etcd_get_prefix(self, prefix):
         return subprocess.run(args=["etcdctl", "--endpoints=" + self.etcd, "get",
                                     "--prefix", prefix],capture_output=True).\
@@ -125,6 +145,7 @@ class Manager:
             if i%2 == 0:
                 answer += "{:30s}".format(item[6:])
             else:
+                
                answer += "{:30s}".format(item) + "\n"
             i += 1
         return answer
@@ -140,7 +161,7 @@ class Manager:
         return containerid
 
     def run_service(self, name, amount):
-        subprocess.run(["docker-compose","up", "--scale", name+"="+amount, "-d"], capture_output=True)
+        subprocess.run(["docker-compose","up", "--scale", name+"="+str(amount), "-d"], capture_output=True)
         self.__etcd_put("image_" + name, amount)
         name_filter = "name=" + name
         id_list = subprocess.run(["docker", "ps", "-qf", name_filter], capture_output=True)\

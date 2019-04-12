@@ -26,9 +26,9 @@ while True:
         image_name = input("What is the image name?\nEnter: ")
         file_name = input("What is the file name?\nEnter: ")
         upper = input("What is the upper limit for this image?:(default is 10)"
-                      "\n Enter")
+                      "\nEnter: ")
         lower = input("What is the lower limit for this image?:(default is 1)"
-                      "\n Enter")
+                      "\nEnter: ")
         try:
             u = int(upper)
             l = int(lower)

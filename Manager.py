@@ -11,6 +11,7 @@ class Manager:
         self.cpu_min = 20.0
         self.mem_max = 80.0
         self.mem_min = 20.0
+        subprocess.run(["docker-compose", "up", "--scale", "reverse-proxy=1", "-d"], capture_output=True)
 
     def __auto_loader(self):
         image_list = self.__get_images_name()
